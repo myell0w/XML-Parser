@@ -2,16 +2,24 @@
 
 % Stackbasierte Sprachen - WS 2010
 %
-% Matthias Treter
-% Philip Messlehner
+% Matthias Tretter - 0726390
+% Philip Messlehner - 
 % Perl Thomas
 %
 % Limitations: Only works with one Tag per Line!!!
 % Explanation: Problems with Handlung multiple SearchResults because of readline-Command
 
-% Step 1: Handle Input
+% Ein simpler XML-Parser in PostScript
+
+% Stack-Effekt-Kommentare haben die Form
+% SE funtionsname: parameter1 parameter2 parameterX -- returnwert1 returnwert2 returnwertX
+
+
+
 
 % Define Procedure for handling SearchTerm
+% SE analyzeSearchResult: post match pre --
+% TODO: change SE: to post match pre -- tag
 /analyzeSearchResult {
 	pop		%pops trailing (=pre)
 	pop		%pops match ('<')
@@ -36,19 +44,24 @@ currentfile buffer readline
 
 /input (input/valid1.xml) (r) file def	%defines Inputfile
 
-{ 
-	input buffer readline {			% reading one line (string bool)
-		(<) search {			% searching for '<'	(post match pre true OR string false)
+
+{ % start loop
+	% reading one line (SE readline: input buffer -- string bool)
+	input buffer readline {
+		% searching for '<'	(SE search: string -- post match pre true 
+	    %                            OR string -- false)
+		(<) search {			
 			analyzeSearchResult
-		}
-		{
+		} % if-path
+		{ % else-path (search)
 			pop						%pops string of search command
 		} ifelse
 	}
-	{
+	{ % else-path (readline)
 		pop		%pops string for readline command
 		exit	%and exits loop
 	} ifelse
 } loop
 
-input closefile						% close File
+% close File
+input closefile
