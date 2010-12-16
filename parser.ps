@@ -5,9 +5,31 @@
 % Matthias Treter
 % Philip Messlehner
 % Perl Thomas
-
+%
+% Limitations: Only works with one Tag per Line!!!
+% Explanation: Problems with Handlung multiple SearchResults because of readline-Command
 
 % Step 1: Handle Input
+
+% Define Procedure for handling SearchTerm
+/analyzeSearchResult {
+	pop		%pops trailing (=pre)
+	pop		%pops match ('<')
+	
+	(>) search {
+		print	% print the pre stuff = tag
+		(\n) print
+		flush
+		pop		% pops the '>' sign
+		pop		% pops rest of line (TODO: work on, to handle multiple tags per line)
+	}
+	{
+		% No '>' found --> broken XML-File or '>' in other line --> Failure
+		pop
+	} ifelse
+} def
+
+
 /buffer 128 string def				%setup buffer for readline
 currentfile buffer readline
 
@@ -17,14 +39,7 @@ currentfile buffer readline
 { 
 	input buffer readline {			% reading one line (string bool)
 		(<) search {			% searching for '<'	(post match pre true OR string false)
-			(Pre: ) print
-			print
-			(\nMatch: ) print					
-			print
-			(\nPost: ) print	
-			print
-			(\n\n) print
-			flush
+			analyzeSearchResult
 		}
 		{
 			pop						%pops string of search command
