@@ -1,0 +1,39 @@
+%!
+
+% Stackbasierte Sprachen - WS 2010
+%
+% Matthias Treter
+% Philip Messlehner
+% Perl Thomas
+
+
+% Step 1: Handle Input
+/buffer 128 string def				%setup buffer for readline
+currentfile buffer readline
+
+
+/input (input/valid1.xml) (r) file def	%defines Inputfile
+
+{ 
+	input buffer readline {			% reading one line (string bool)
+		(<) search {			% searching for '<'	(post match pre true OR string false)
+			(Pre: ) print
+			print
+			(\nMatch: ) print					
+			print
+			(\nPost: ) print	
+			print
+			(\n\n) print
+			flush
+		}
+		{
+			pop						%pops string of search command
+		} ifelse
+	}
+	{
+		pop		%pops string for readline command
+		exit	%and exits loop
+	} ifelse
+} loop
+
+input closefile						% close File
