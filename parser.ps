@@ -6,13 +6,17 @@
 % Philip Messlehner - 
 % Perl Thomas -
 %
-% Limitations: Only works with one Tag per Line!!!
-% Explanation: Problems with handling multiple search results because of readline-command
+
+% current known limitations:
+%  * input-file must have an empty line at the end
 
 % Ein simpler XML-Parser in PostScript
 
 % Stack-Effekt-Kommentare haben die Form
 % SE funtionsname: parameter1 parameter2 parameterX -- returnwert1 returnwert2 returnwertX
+
+% Global Tag Dictionary
+/TagDictionary 100 dict def
 
 
 
@@ -20,38 +24,54 @@
 % SE prepareTag: tagWithAttributes -- tag
 /prepareTag {
 	( ) search { % search for whitespace
-		exch	% new ordering post pre match
-		pop		% pop whitespace
-		exch	% new ordering pre post
-		pop		% pop Attributes
-	}
-	{
-		% do nothing --> Element has no Attributes
+		exch	 % new ordering post pre match
+		pop		 % pop whitespace
+		exch	 % new ordering pre post
+		%pop		 % pop Attributes
+
+		% store into TagDictionary (name = pre (tag-name), value = post (attributes))
+		TagDictionary begin
+		    def % store tag on dictionary-stack   
+		end
+	} 
+	{ % else-path search (element has no attributes)
+		TagDictionary begin
+		   % store into TagDictionary (name = pre (tag-name), value = 'no tags')
+		   (no tags) def 
+		end
 	} ifelse
+	
 } def
 
+% Procedure to handle End-Tag
+% SE handleEndTag: endTag --
+/handleEndTag {
+	(Current Element to handle: ) print
+	print
+	TagDictionary printDictionaryTop
+	%TagDictionary /currentTag get
+	%currentTag print
+	(\n) print
+} def
 
 % Define Procedure for handling SearchTerm
-% SE analyzeSearchResult: post --
-% TODO: change SE: to post -- tag
+% SE analyzeSearchResult: pre --
 /analyzeSearchResult {
-	
-	% searching for '</'	(SE search: string -- post match pre true 
-    %                            OR string -- false)
+	% searching for '</' in pre 	(SE search: string -- post match pre true 
+    %                                        OR string -- false)
 	(</) search {
 		% EndTag Found
-		% TDOD: EndTagHandling
 		pop		% pop pre (Text before Tag begins)
 		pop		% pop '</'
-		pop		% pop endTag
-	}
-	{
+		handleEndTag
+	} % if-path search
+	{ % else-path search
 		(<) search { % search for BeginTag
 			pop		% pop pre (Text before Tag begins)
 			pop		% pop '<'
 			prepareTag
-			print	% print Tag
-			(\n) print
+			%print	% print Tag
+			(Tag found\n) print
 		}
 		{
 			pop
@@ -60,13 +80,46 @@
 } def
 
 
+% prints a dictionary
+% SE printDictionary dictionary  –-
+/printDictionary { %def
+	(\nDictionary: \n) print
+	{ %forall
+		exch % name first
+	    (key: ) print ==  
+	    %( = ) print  
+	    (val: ) print ==
+    } forall 
+} bind def
+
+% prints the top of a dictionary
+% SE printDictionary dictionary  –-
+/printDictionaryTop { %def
+	(\nDictionary Top: \n) print
+	{ %forall
+		exch % name first
+	    (key: ) print ==  
+	    %( = ) print  
+	    (val: ) print ==
+		exit
+    } forall 
+} bind def
+
+
+% Reads the path to a file from stdin
+% SE readPathToInputFile:  -- path
+/readPathToInputFile {
+    (Pfad zur XML-Datei: ) print flush
+    (%stdin) (r) file 100 string readline pop
+} def
 
 % Main-Procedure
 % SE main:  --
 /main {
 	/buffer 128 string def				%setup buffer for readline
 	currentfile buffer readline
-	/input (input/valid2.xml) (r) file def	%defines Inputfile
+	
+	/input readPathToInputFile (r) file def	%defines Inputfile
 	
 	{ % start loop
 		% reading one line (SE readline: input buffer -- string bool)
@@ -76,7 +129,7 @@
 		    		%                            OR string -- false)
 					(>) search {			
 						analyzeSearchResult
-						pop		% pop > Sign
+						pop		% pop match ( > Sign )
 					} % if-path
 					{ % else-path (search)
 						pop						% pops string of search command
@@ -92,6 +145,8 @@
 
 	% close File
 	input closefile
+	
+	TagDictionary printDictionary
 } def
 
 % call main-procedure
