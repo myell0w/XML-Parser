@@ -16,6 +16,20 @@
 
 
 
+% Procedure to exclude style-Attribute and stuff like that for Tag
+% SE prepareTag: tagWithStyleAttributes -- tag
+/prepareTag {
+	( ) search { % search for whitespace
+		exch	% new ordering post pre match
+		pop		% pop whitespace
+		exch	% new ordering pre post
+		pop		% pop style-Attribute
+	}
+	{
+		% do nothing --> Element is the Tag
+	} ifelse
+} def
+
 
 % Define Procedure for handling SearchTerm
 % SE analyzeSearchResult: post --
@@ -35,8 +49,8 @@
 		(<) search { % search for BeginTag
 			pop		% pop pre (Text before Tag begins)
 			pop		% pop '<'
+			prepareTag
 			print	% print Tag
-			% TODO: define Procedure, that excludes tag, e.g. search for whitespace und cut the style-attribute
 			(\n) print
 		}
 		{
@@ -50,28 +64,38 @@
 currentfile buffer readline
 
 
-/input (input/valid3.xml) (r) file def	%defines Inputfile
-
-
-{ % start loop
-	% reading one line (SE readline: input buffer -- string bool)
-	input buffer readline {
-		% searching for '>'	(SE search: string -- post match pre true 
-	    %                            OR string -- false)
-		(>) search {			
-			analyzeSearchResult
-			pop
-			pop
-		} % if-path
-		{ % else-path (search)
-			pop						% pops string of search command
+% Main-Procedure
+% SE main:  --
+/main {
+	/buffer 128 string def				%setup buffer for readline
+	currentfile buffer readline
+	/input (input/valid2.xml) (r) file def	%defines Inputfile
+	
+	{ % start loop
+		% reading one line (SE readline: input buffer -- string bool)
+		input buffer readline {
+			{ %start loop for multiple tags in one line
+				% searching for '>'	(SE search: string -- post match pre true 
+		    		%                            OR string -- false)
+					(>) search {			
+						analyzeSearchResult
+						pop		% pop > Sign
+					} % if-path
+					{ % else-path (search)
+						pop						% pops string of search command
+						exit					% and exits loop
+					} ifelse
+			} loop
+		}
+		{ % else-path (readline)
+			pop		% pops string for readline command
+			exit	% and exits loop
 		} ifelse
-	}
-	{ % else-path (readline)
-		pop		% pops string for readline command
-		exit	% and exits loop
-	} ifelse
-} loop
+	} loop
 
-% close File
-input closefile
+	% close File
+	input closefile
+} def
+
+% call main-procedure
+main
