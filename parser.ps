@@ -40,30 +40,35 @@
 } def
 
 
-/buffer 128 string def				%setup buffer for readline
-currentfile buffer readline
-
-
-/input (input/valid1.xml) (r) file def	%defines Inputfile
-
-
-{ % start loop
-	% reading one line (SE readline: input buffer -- string bool)
-	input buffer readline {
-		% searching for '<'	(SE search: string -- post match pre true 
-	    %                            OR string -- false)
-		(<) search {			
-			analyzeSearchResult
-		} % if-path
-		{ % else-path (search)
-			pop						% pops string of search command
+% Main-Procedure
+% SE main:  --
+/main {
+	/buffer 128 string def				%setup buffer for readline
+	currentfile buffer readline
+	/input (input/valid1.xml) (r) file def	%defines Inputfile
+	
+	{ % start loop
+		% reading one line (SE readline: input buffer -- string bool)
+		input buffer readline {
+			% searching for '<'	(SE search: string -- post match pre true 
+		    %                            OR string -- false)
+			(<) search {			
+				analyzeSearchResult
+			} % if-path
+			{ % else-path (search)
+				pop						% pops string of search command
+			} ifelse
+		}
+		{ % else-path (readline)
+			pop		% pops string for readline command
+			exit	% and exits loop
 		} ifelse
-	}
-	{ % else-path (readline)
-		pop		% pops string for readline command
-		exit	% and exits loop
-	} ifelse
-} loop
+	} loop
 
-% close File
-input closefile
+	% close File
+	input closefile
+} def
+
+
+% call main-procedure
+main
