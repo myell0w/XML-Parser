@@ -16,17 +16,17 @@
 
 
 
-% Procedure to exclude style-Attribute and stuff like that for Tag
-% SE prepareTag: tagWithStyleAttributes -- tag
+% Procedure to exclude Attribute
+% SE prepareTag: tagWithAttributes -- tag
 /prepareTag {
 	( ) search { % search for whitespace
 		exch	% new ordering post pre match
 		pop		% pop whitespace
 		exch	% new ordering pre post
-		pop		% pop style-Attribute
+		pop		% pop Attributes
 	}
 	{
-		% do nothing --> Element is the Tag
+		% do nothing --> Element has no Attributes
 	} ifelse
 } def
 
