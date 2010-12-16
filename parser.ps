@@ -17,12 +17,14 @@
 
 % Global Tag Dictionary
 /TagDictionary 100 dict def
+/Topmost (unknown) def
 
 
 
 % Procedure to exclude Attribute
 % SE prepareTag: tagWithAttributes -- tag
 /prepareTag {
+	/TagDictionary exch % pusht TagDict on the stack vor tag
 	( ) search { % search for whitespace
 		exch	 % new ordering post pre match
 		pop		 % pop whitespace
@@ -30,9 +32,10 @@
 		%pop		 % pop Attributes
 
 		% store into TagDictionary (name = pre (tag-name), value = post (attributes))
-		TagDictionary begin
-		    def % store tag on dictionary-stack   
-		end
+		%TagDictionary 
+		%    def % store tag on dictionary-stack   
+		%end
+		put
 	} 
 	{ % else-path search (element has no attributes)
 		TagDictionary begin
@@ -49,7 +52,8 @@
 	% TODO: compare current element to handle with top of dictionary-stack
 	(Current Element to handle: ) print
 	print % print current element
-	TagDictionary printDictionaryTop % print top of dictionary
+	%TagDictionary printDictionaryTop % print top of dictionary
+	
 	(\n) print
 } def
 
@@ -68,8 +72,8 @@
 		(<) search { % search for BeginTag
 			pop		% pop pre (Text before Tag begins)
 			pop		% pop '<'
+			
 			prepareTag
-			%print	% print Tag
 			(Tag found\n) print
 		}
 		{
@@ -108,8 +112,10 @@
 % Reads the path to a file from stdin
 % SE readPathToInputFile:  -- path
 /readPathToInputFile {
-    (Pfad zur XML-Datei: ) print flush
-    (%stdin) (r) file 100 string readline pop
+    % TODO: comment out, hardcoded for testing-purposes
+	%(Pfad zur XML-Datei: ) print flush
+    %(%stdin) (r) file 100 string readline pop
+	(input/valid1.xml)
 } def
 
 % Main-Procedure
