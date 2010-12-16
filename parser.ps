@@ -18,24 +18,30 @@
 
 
 % Define Procedure for handling SearchTerm
-% SE analyzeSearchResult: post match pre --
-% TODO: change SE: to post match pre -- tag
+% SE analyzeSearchResult: post --
+% TODO: change SE: to post -- tag
 /analyzeSearchResult {
-	pop		%pops trailing (=pre)
-	pop		%pops match ('<')
 	
-	% searching for '>'	(SE search: string -- post match pre true 
+	% searching for '</'	(SE search: string -- post match pre true 
     %                            OR string -- false)
-	(>) search {
-		print	% print the pre stuff = tag
-		(\n) print
-		flush
-		pop		% pops the '>' sign
-		pop		% pops rest of line (TODO: work on, to handle multiple tags per line)
+	(</) search {
+		% EndTag Found
+		% TDOD: EndTagHandling
+		pop		% pop pre (Text before Tag begins)
+		pop		% pop '</'
+		pop		% pop endTag
 	}
 	{
-		% No '>' found --> broken XML-File or '>' in other line --> Failure
-		pop
+		(<) search { % search for BeginTag
+			pop		% pop pre (Text before Tag begins)
+			pop		% pop '<'
+			print	% print Tag
+			% TODO: define Procedure, that excludes tag, e.g. search for whitespace und cut the style-attribute
+			(\n) print
+		}
+		{
+			pop
+		} ifelse
 	} ifelse
 } def
 
@@ -44,16 +50,18 @@
 currentfile buffer readline
 
 
-/input (input/valid1.xml) (r) file def	%defines Inputfile
+/input (input/valid3.xml) (r) file def	%defines Inputfile
 
 
 { % start loop
 	% reading one line (SE readline: input buffer -- string bool)
 	input buffer readline {
-		% searching for '<'	(SE search: string -- post match pre true 
+		% searching for '>'	(SE search: string -- post match pre true 
 	    %                            OR string -- false)
-		(<) search {			
+		(>) search {			
 			analyzeSearchResult
+			pop
+			pop
 		} % if-path
 		{ % else-path (search)
 			pop						% pops string of search command
