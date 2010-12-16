@@ -46,11 +46,10 @@
 % Procedure to handle End-Tag
 % SE handleEndTag: endTag --
 /handleEndTag {
+	% TODO: compare current element to handle with top of dictionary-stack
 	(Current Element to handle: ) print
-	print
-	TagDictionary printDictionaryTop
-	%TagDictionary /currentTag get
-	%currentTag print
+	print % print current element
+	TagDictionary printDictionaryTop % print top of dictionary
 	(\n) print
 } def
 
