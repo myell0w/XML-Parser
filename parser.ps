@@ -24,7 +24,6 @@
 % Procedure to exclude Attribute
 % SE prepareTag: tagWithAttributes -- tag
 /prepareTag {
-	/TagDictionary exch % pusht TagDict on the stack vor tag
 	( ) search { % search for whitespace
 		exch	 % new ordering post pre match
 		pop		 % pop whitespace
@@ -32,10 +31,9 @@
 		%pop		 % pop Attributes
 
 		% store into TagDictionary (name = pre (tag-name), value = post (attributes))
-		%TagDictionary 
-		%    def % store tag on dictionary-stack   
-		%end
-		put
+		TagDictionary 
+		    def % store tag on dictionary-stack   
+		end
 	} 
 	{ % else-path search (element has no attributes)
 		TagDictionary begin
