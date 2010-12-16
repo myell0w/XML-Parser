@@ -4,10 +4,10 @@
 %
 % Matthias Tretter - 0726390
 % Philip Messlehner - 
-% Perl Thomas
+% Perl Thomas -
 %
 % Limitations: Only works with one Tag per Line!!!
-% Explanation: Problems with Handlung multiple SearchResults because of readline-Command
+% Explanation: Problems with handling multiple search results because of readline-command
 
 % Ein simpler XML-Parser in PostScript
 
@@ -24,6 +24,8 @@
 	pop		%pops trailing (=pre)
 	pop		%pops match ('<')
 	
+	% searching for '>'	(SE search: string -- post match pre true 
+    %                            OR string -- false)
 	(>) search {
 		print	% print the pre stuff = tag
 		(\n) print
@@ -54,12 +56,12 @@ currentfile buffer readline
 			analyzeSearchResult
 		} % if-path
 		{ % else-path (search)
-			pop						%pops string of search command
+			pop						% pops string of search command
 		} ifelse
 	}
 	{ % else-path (readline)
-		pop		%pops string for readline command
-		exit	%and exits loop
+		pop		% pops string for readline command
+		exit	% and exits loop
 	} ifelse
 } loop
 
