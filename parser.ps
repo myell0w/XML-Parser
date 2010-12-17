@@ -3,7 +3,7 @@
 % Stackbasierte Sprachen - WS 2010
 %
 % Matthias Tretter - 0726390
-% Philip Messlehner - 
+% Philip Messlehner -
 % Perl Thomas - 0725603
 %
 
@@ -24,26 +24,26 @@
 % SE prepareTag: tagWithAttributes -- tag
 /prepareTag {
 	2 dict begin
-	
+
 	( ) search { % search for whitespace
 		exch	 % new ordering post pre match
 		pop		 % pop whitespace
-		exch	 % new ordering pre post	
-		
+		exch	 % new ordering pre post
+
 		% save attributes in variable
-		/attributes exch def 
-	} 
+		/attributes exch def
+	}
 	{ % else-path search (element has no attributes)
 		% store dummy text as attributes
 		/attributes (no attributes) def
 	} ifelse
-	
-	% store pre (= name of tag) in variable 
+
+	% store pre (= name of tag) in variable
 	/tagname exch def
-	
+
 	% store into TagDictionary (name = Topmost, value = attributes)
 	TagDictionary begin
-	    tagname attributes def % store tag on dictionary-stack   
+	    tagname attributes def % store tag on dictionary-stack
 	end
 	end % 2 dict
 } def
@@ -53,11 +53,11 @@
 /handleEndTag {
 	1 dict begin
 	/endTag exch def
-	
+
 	   % TODO: compare current element to handle with top of dictionary-stack
 	   (Current element to handle: ) print
 	   endTag print % print current element
-	   
+
 	    %TagDictionary printDictionaryTop % print top of dictionary
 	   (\n) print
 	end % 1 dict
@@ -66,7 +66,7 @@
 % Define Procedure for handling SearchTerm
 % SE analyzeSearchResult: pre --
 /analyzeSearchResult {
-	% searching for '</' in pre 	(SE search: string -- post match pre true 
+	% searching for '</' in pre 	(SE search: string -- post match pre true
     %                                        OR string -- false)
 	(</) search {
 		% EndTag Found
@@ -78,7 +78,7 @@
 		(<) search { % search for BeginTag
 			pop		% pop pre (Text before Tag begins)
 			pop		% pop '<'
-			
+
 			prepareTag
 			(Tag found\n) print
 		}
@@ -95,10 +95,10 @@
 	(\nDictionary: \n) print
 	{ %forall
 		exch % name first
-	    (key: ) print ==  
-	    %( = ) print  
+	    (key: ) print ==
+	    %( = ) print
 	    (val: ) print ==
-    } forall 
+    } forall
 } bind def
 
 % prints the top of a dictionary
@@ -107,11 +107,11 @@
 	(\nDictionary Top: \n) print
 	{ %forall
 		exch % name first
-	    (key: ) print ==  
-	    %( = ) print  
+	    (key: ) print ==
+	    %( = ) print
 	    (val: ) print ==
 		exit
-    } forall 
+    } forall
 } bind def
 
 
@@ -129,16 +129,16 @@
 /main {
 	/buffer 128 string def				%setup buffer for readline
 	currentfile buffer readline
-	
+
 	/input readPathToInputFile (r) file def	%defines Inputfile
-	
+
 	{ % start loop
 		% reading one line (SE readline: input buffer -- string bool)
 		input buffer readline {
 			{ %start loop for multiple tags in one line
-				% searching for '>'	(SE search: string -- post match pre true 
+				% searching for '>'	(SE search: string -- post match pre true
 		    		%                            OR string -- false)
-					(>) search {			
+					(>) search {
 						analyzeSearchResult
 						pop		% pop match ( > Sign )
 					} % if-path
@@ -156,7 +156,7 @@
 
 	% close File
 	input closefile
-	
+
 	TagDictionary printDictionary
 } def
 
