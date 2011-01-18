@@ -23,20 +23,30 @@
 % Procedure to exclude Attribute
 % SE prepareTag: tagWithAttributes -- tag
 /prepareTag {
+        % Local variables dict has two entries (attributes + tagname)
 	2 dict begin
 
-	( ) search { % search for whitespace
-		exch	 % new ordering post pre match
-		pop		 % pop whitespace
-		exch	 % new ordering pre post
+        % Search for a single whitespace character
+	( ) search { % then-branch of ifelse
+                % Stack contents: post, match, pre
+		exch
+                % Stack contents: post, pre, match
+		pop
+                % Stack contents: post, pre
+		exch
+                % Stack contents: pre, post
 
-		% save attributes in variable
+		% save attributes (post) in variable
 		/attributes exch def
-	}
-	{ % else-path search (element has no attributes)
-		% store dummy text as attributes
-		/attributes (no attributes) def
+	} { % else-branch of ifelse
+                % Element has no attributes (store empty string)
+		/attributes () def
+
+                % Stack contents: tag name
 	} ifelse
+
+        % Debugging output: Contents of attributes
+        (') attributes (Attributes: ') print print =
 
 	% store pre (= name of tag) in variable
 	/tagname exch def
@@ -44,7 +54,12 @@
 	% store into TagDictionary (name = Topmost, value = attributes)
 	TagDictionary begin
 	    tagname attributes def % store tag on dictionary-stack
+            html
 	end
+
+        % push tagname on stack
+        tagname dup ==
+
 	end % 2 dict
 } def
 
@@ -52,14 +67,10 @@
 % SE handleEndTag: endTag --
 /handleEndTag {
 	1 dict begin
-	/endTag exch def
-
+           /endTag exch def
 	   % TODO: compare current element to handle with top of dictionary-stack
-	   (Current element to handle: ) print
-	   endTag print % print current element
-
-	    %TagDictionary printDictionaryTop % print top of dictionary
-	   (\n) print
+	   endTag (Handling end tag: ) print =
+           % "print" prints a value without trailing endline, "=" with \n at end
 	end % 1 dict
 } def
 
@@ -80,7 +91,8 @@
 			pop		% pop '<'
 
 			prepareTag
-			(Tag found\n) print
+			dup (Start tag found: ) print =
+                        TagDictionary printDictionary
 		}
 		{
 			pop
@@ -94,10 +106,11 @@
 /printDictionary { %def
 	(\nDictionary: \n) print
 	{ %forall
-		exch % name first
-	    (key: ) print ==
-	    %( = ) print
-	    (val: ) print ==
+            % name value
+            exch
+            (=>)
+            exch
+            = print =
     } forall
 } bind def
 
@@ -162,3 +175,4 @@
 
 % call main-procedure
 main
+% make object executable
