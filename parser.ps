@@ -208,10 +208,6 @@
 		exit
     } forall
 } bind def
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% UNUSED
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
 % Reads the path to a file from stdin
 % SE readPathToInputFile:  -- path
@@ -221,6 +217,11 @@
     (%stdin) (r) file 100 string readline pop
 %	(input/valid2.xml)
 } def
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% UNUSED
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 % SE: tagname attributes --
 /tagOpen {
@@ -280,10 +281,32 @@
     end  % end sentinel
 } def
 
+% SE: --
+/checkCLIParams {
+    1 dict begin
+        % SE: [list of parameters] --
+        /requireParameters {
+            {
+                dup systemdict exch known not {
+                    (Missing parameter: -d) print =
+                    quit
+                } if
+            } forall
+        } def
+
+        % List all required parameters here
+        [
+            (inputFilename)
+        ] requireParameters
+    end
+} def
+
 % Main-Procedure
 % SE main:  --
 /main {
         /locals 100 dict def
+
+        checkCLIParams
 
         locals begin
         /buffer 128 string def				%setup buffer for readline
@@ -292,7 +315,7 @@
 	currentfile buffer readline
 
         locals begin
-            /input readPathToInputFile (r) file def	%defines Inputfile
+            /input inputFilename (r) file def
         end
 
 	{ % start loop
@@ -327,6 +350,8 @@
     sentinelClose
 
     end % end of locals
+
+    quit
 
 } def
 
