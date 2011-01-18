@@ -23,8 +23,9 @@
 % Procedure to exclude Attribute
 % SE prepareTag: tagWithAttributes -- tag
 /prepareTag {
+        (prepareTag) =
         % Local variables dict has two entries (attributes + tagname)
-	2 dict begin
+	100 dict begin
 
         % Search for a single whitespace character
 	( ) search { % then-branch of ifelse
@@ -51,27 +52,45 @@
 	% store pre (= name of tag) in variable
 	/tagname exch def
 
-	% store into TagDictionary (name = Topmost, value = attributes)
-	TagDictionary begin
+        /newdict 100 dict def
+
+	% store into new dictionary
+	newdict begin
 	    tagname attributes def % store tag on dictionary-stack
-            html
+            % (verwende eh unten newdict) currentdict % store ref to newdict in operand stack
 	end
 
-        % push tagname on stack
-        tagname dup ==
+        newdict % push newdict to operand stack
 
-	end % 2 dict
+	end % 2 dict (lokale variablen)
+
+        begin % pop top of operand stack (= newdict) + push on dict stack
 } def
 
 % Procedure to handle End-Tag
 % SE handleEndTag: endTag --
 /handleEndTag {
-	1 dict begin
+        (handleEndTag) =
+
+        currentdict % push top of dict stack to operand stack
+
+	10 dict begin
+           /lastdict exch def
+
            /endTag exch def
 	   % TODO: compare current element to handle with top of dictionary-stack
 	   endTag (Handling end tag: ) print =
+
+           lastdict endTag known {
+               (found) =
+           } { % else
+               (not found) =
+           } ifelse
+
            % "print" prints a value without trailing endline, "=" with \n at end
 	end % 1 dict
+
+        end % "pop from dict stack"
 } def
 
 % Define Procedure for handling SearchTerm
@@ -91,8 +110,8 @@
 			pop		% pop '<'
 
 			prepareTag
-			dup (Start tag found: ) print =
-                        TagDictionary printDictionary
+			%dup (Start tag found: ) print =
+                        currentdict printDictionary
 		}
 		{
 			pop
