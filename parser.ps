@@ -222,7 +222,7 @@
 %	(input/valid2.xml)
 } def
 
-% SE: tagName attributes --
+% SE: tagname attributes --
 /tagOpen {
     (') exch (XX Opening: ') printa printa comment
     % FIXME: Output opening tag
@@ -238,6 +238,12 @@
 /tagComment {
     (') exch (XX Comment: ') printa printa comment
     % FIXME: Output comment-style text
+} def
+
+% SE: picontent --
+/tagPI {
+    (') exch (XX Processing instruction:') printa printa comment
+    % FIXME: Output <? ... ?> with the right colors
 } def
 
 % SE: tagName --
