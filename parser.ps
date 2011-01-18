@@ -40,6 +40,7 @@
     % assertion: currentdict only has one key!
     currentdict length 1 ne {
         (ERROR: Found dict with size != 1) =
+        currentdict printDictionary
         quit
     } if
 
@@ -49,6 +50,8 @@
         % forall gives: (key, value)
         pop % pop the value, leaves key on stack
     } forall
+
+    100 string cvs % convert to string (+reserve memory)
 } def
 
 
@@ -83,7 +86,7 @@
 
         /newdict 100 dict def
 
-        (') tagname (XX Opening: ') printa printa comment
+        tagname tagOpen
 
 	% store into new dictionary
 	newdict begin
@@ -105,14 +108,11 @@
         currentdict % push top of dict stack to operand stack
 
 	10 dict begin
+           /lastdict exch def
+           /endTag exch def
+
            % should the top-of-dict be droppped? (default yes)
            /dropTag true def
-
-           /lastdict exch def
-
-           /endTag exch def
-	   % TODO: compare current element to handle with top of dictionary-stack
-	   endTag (Handling end tag: ) printa comment
 
            % is "endTag" in the last opened dict?
            lastdict endTag known {
@@ -136,18 +136,20 @@
             % here: endTag on top of stack
             {
                 dup currentdict exch known {
+                    (found on top) comment
                     % endtag is on currentdict
-                    lastTagName (XX Closing: ) printa comment
+                    lastTagName tagClose
                     end
                     exit
                 } { % else
-                    % still not found
-                    lastTagName (XX Closing: ) printa comment
+                    (still not found) comment
+                    lastTagName tagClose
                     end
                 } ifelse
             } loop
         } {
             (ignoring end tag) comment
+            dup tagIgnore
         } ifelse % if droptag, "pop from dict stack"
 
         % here: endTag still on top of stack -> pop
@@ -220,22 +222,78 @@
 %	(input/valid2.xml)
 } def
 
+% SE: tagName attributes --
+/tagOpen {
+    (') exch (XX Opening: ') printa printa comment
+    % FIXME: Output opening tag
+} def
+
+% SE: data --
+/tagData {
+    (') exch (XX Data: ') printa printa comment
+    % FIXME: Output "normal" text
+} def
+
+% SE: comment --
+/tagComment {
+    (') exch (XX Comment: ') printa printa comment
+    % FIXME: Output comment-style text
+} def
+
+% SE: tagName --
+/tagIgnore {
+    (') exch (XX Ignoring closing tag: ') printa printa comment
+    % FIXME: Output closing tag as "strikethrough"
+} def
+
+% SE: tagName --
+/tagClose {
+    (') exch (XX Closing: ') printa printa comment
+    % FIXME: Output closing tag
+} def
+
+/sentinelKey (itsTheEndOfTheDoc) def
+
+/sentinelOpen {
+    /sentinel 1 dict def
+    sentinel begin
+    sentinelKey (..as we know it) def
+} def
+
+/sentinelClose {
+    % dictstack abbauen, bis sentinel gefunden
+    {
+        currentdict sentinelKey known {
+            exit
+        } if
+
+        lastTagName tagClose
+        end
+    } loop
+
+    end  % end sentinel
+} def
+
 % Main-Procedure
 % SE main:  --
 /main {
-        /sentinelKey (itsTheEndOfTheDoc) def
+        /locals 100 dict def
 
-        /sentinel 1 dict def
-        sentinel begin
-        sentinelKey (..as we know it) def
-        lastTagName (The sentinel is: ) printa comment
+        locals begin
+        /buffer 128 string def				%setup buffer for readline
 
-	/buffer 128 string def				%setup buffer for readline
+        sentinelOpen
 	currentfile buffer readline
 
-	/input readPathToInputFile (r) file def	%defines Inputfile
+        locals begin
+            /input readPathToInputFile (r) file def	%defines Inputfile
+        end
 
 	{ % start loop
+                locals begin
+                    /buffer 128 string def				%setup buffer for readline
+                end
+
 		% reading one line (SE readline: input buffer -- string bool)
 		input buffer readline {
 			{ %start loop for multiple tags in one line
@@ -260,17 +318,10 @@
 	% close File
 	input closefile
 
-        % dictstack abbauen, bis sentinel gefunden
-        {
-            currentdict sentinelKey known {
-                exit
-            } if
+    sentinelClose
 
-            lastTagName (XX Closing in sentinelsearch: ) printa comment
-            end
-        } loop
+    end % end of locals
 
-        end  % end sentinel
 } def
 
 % call main-procedure
