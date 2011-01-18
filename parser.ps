@@ -15,15 +15,47 @@
 % Stack-Effekt-Kommentare haben die Form
 % SE funtionsname: parameter1 parameter2 parameterX -- returnwert1 returnwert2 returnwertX
 
-% Global Tag Dictionary
-/TagDictionary 100 dict def
+/debug true def
 
+/printa {
+    debug {
+        print
+    } {
+        pop
+    } ifelse
+} def
+
+/comment {
+    debug {
+        =
+    } {
+        pop
+    } ifelse
+} def
+
+
+% Get name of last opened tag (based on dict stack)
+% SE lastTagName: -- nameOfLastOpenedTag
+/lastTagName {
+    % assertion: currentdict only has one key!
+    currentdict length 1 ne {
+        (ERROR: Found dict with size != 1) =
+        quit
+    } if
+
+    % the following block runs only once, because
+    % we have the assertion of length 1 above.
+    currentdict {
+        % forall gives: (key, value)
+        pop % pop the value, leaves key on stack
+    } forall
+} def
 
 
 % Procedure to exclude Attribute
 % SE prepareTag: tagWithAttributes -- tag
 /prepareTag {
-        (prepareTag) =
+        (prepareTag) comment
         % Local variables dict has two entries (attributes + tagname)
 	100 dict begin
 
@@ -46,18 +78,16 @@
                 % Stack contents: tag name
 	} ifelse
 
-        % Debugging output: Contents of attributes
-        (') attributes (Attributes: ') print print =
-
 	% store pre (= name of tag) in variable
 	/tagname exch def
 
         /newdict 100 dict def
 
+        (') tagname (XX Opening: ') printa printa comment
+
 	% store into new dictionary
 	newdict begin
 	    tagname attributes def % store tag on dictionary-stack
-            % (verwende eh unten newdict) currentdict % store ref to newdict in operand stack
 	end
 
         newdict % push newdict to operand stack
@@ -70,27 +100,58 @@
 % Procedure to handle End-Tag
 % SE handleEndTag: endTag --
 /handleEndTag {
-        (handleEndTag) =
+        dup (') exch (handleEndTag: ') printa printa comment
 
         currentdict % push top of dict stack to operand stack
 
 	10 dict begin
+           % should the top-of-dict be droppped? (default yes)
+           /dropTag true def
+
            /lastdict exch def
 
            /endTag exch def
 	   % TODO: compare current element to handle with top of dictionary-stack
-	   endTag (Handling end tag: ) print =
+	   endTag (Handling end tag: ) printa comment
 
+           % is "endTag" in the last opened dict?
            lastdict endTag known {
-               (found) =
+               (found on top) comment
            } { % else
-               (not found) =
+               endTag where {
+                   /founddict exch def
+                   (found somewhere) comment
+               } { % else
+                   /dropTag false def
+                   (not found) comment
+               } ifelse
            } ifelse
 
-           % "print" prints a value without trailing endline, "=" with \n at end
+           endTag % for the check
+           dropTag % for the if (-> is a boolean already)
 	end % 1 dict
 
-        end % "pop from dict stack"
+        {
+            (drop until tag found) comment
+            % here: endTag on top of stack
+            {
+                dup currentdict exch known {
+                    % endtag is on currentdict
+                    lastTagName (XX Closing: ) printa comment
+                    end
+                    exit
+                } { % else
+                    % still not found
+                    lastTagName (XX Closing: ) printa comment
+                    end
+                } ifelse
+            } loop
+        } {
+            (ignoring end tag) comment
+        } ifelse % if droptag, "pop from dict stack"
+
+        % here: endTag still on top of stack -> pop
+        pop
 } def
 
 % Define Procedure for handling SearchTerm
@@ -110,8 +171,6 @@
 			pop		% pop '<'
 
 			prepareTag
-			%dup (Start tag found: ) print =
-                        currentdict printDictionary
 		}
 		{
 			pop
@@ -119,7 +178,9 @@
 	} ifelse
 } def
 
-
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% UNUSED
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % prints a dictionary
 % SE printDictionary dictionary  –-
 /printDictionary { %def
@@ -145,20 +206,30 @@
 		exit
     } forall
 } bind def
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% UNUSED
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 % Reads the path to a file from stdin
 % SE readPathToInputFile:  -- path
 /readPathToInputFile {
     % TODO: comment out, hardcoded for testing-purposes
-	%(Pfad zur XML-Datei: ) print flush
-    %(%stdin) (r) file 100 string readline pop
-	(input/valid2.xml)
+	(Pfad zur XML-Datei: ) print flush
+    (%stdin) (r) file 100 string readline pop
+%	(input/valid2.xml)
 } def
 
 % Main-Procedure
 % SE main:  --
 /main {
+        /sentinelKey (itsTheEndOfTheDoc) def
+
+        /sentinel 1 dict def
+        sentinel begin
+        sentinelKey (..as we know it) def
+        lastTagName (The sentinel is: ) printa comment
+
 	/buffer 128 string def				%setup buffer for readline
 	currentfile buffer readline
 
@@ -189,7 +260,17 @@
 	% close File
 	input closefile
 
-	TagDictionary printDictionary
+        % dictstack abbauen, bis sentinel gefunden
+        {
+            currentdict sentinelKey known {
+                exit
+            } if
+
+            lastTagName (XX Closing in sentinelsearch: ) printa comment
+            end
+        } loop
+
+        end  % end sentinel
 } def
 
 % call main-procedure
