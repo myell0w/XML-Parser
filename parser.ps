@@ -15,7 +15,7 @@
 % Stack-Effekt-Kommentare haben die Form
 % SE funtionsname: parameter1 parameter2 parameterX -- returnwert1 returnwert2 returnwertX
 
-/debug true def
+/debug false def
 
 /printa {
     debug {
@@ -328,8 +328,16 @@
 
 % SE: tagname attributes --
 /tagOpen {
-	% output tag in the form <tagname attributes>
-	exch (<) print print ( ) print print (>) =
+	% output <tagname 
+	exch (<) print print 
+	
+	% check if there are attributes
+	dup () eq {
+		% no attributes 
+		print (>) =
+	} { % else
+		( ) print print (>) =
+	} ifelse
 } def
 
 /tagOpenClose {
