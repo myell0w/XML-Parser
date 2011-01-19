@@ -54,39 +54,40 @@
     100 string cvs % convert to string (+reserve memory)
 } def
 
+% Procedure to exclude Attributes
+% SE extractAttributes: tagWithAttributes -- tag attributes
+/extractAttributes {
+	% Search for a single whitespace character
+	( ) search { % then-branch of ifelse
+    	% Stack contents: post, match, pre
+		exch
+        % Stack contents: post, pre, match
+		pop
+        % Stack contents: post, pre
+		exch
+        % Stack contents: pre, post
+	} { % else-branch of ifelse
+        % Element has no attributes (store empty string)
+		()
+	} ifelse
+} def
 
-% Procedure to exclude Attribute
-% SE prepareTag: tagWithAttributes -- tag
+% Procedure to store Tag as Dictionairy
 /prepareTag {
         (prepareTag) comment
         % Local variables dict has two entries (attributes + tagname)
 	100 dict begin
 
-        % Search for a single whitespace character
-	( ) search { % then-branch of ifelse
-                % Stack contents: post, match, pre
-		exch
-                % Stack contents: post, pre, match
-		pop
-                % Stack contents: post, pre
-		exch
-                % Stack contents: pre, post
-
-		% save attributes (post) in variable
-		/attributes exch def
-	} { % else-branch of ifelse
-                % Element has no attributes (store empty string)
-		/attributes () def
-
-                % Stack contents: tag name
-	} ifelse
+    extractAttributes
+	
+	/attributes exch def
 
 	% store pre (= name of tag) in variable
 	/tagname exch def
 
         /newdict 100 dict def
 
-        tagname tagOpen
+        tagname attributes tagOpen
 
 	% store into new dictionary
 	newdict begin
@@ -168,8 +169,8 @@
 	} ifelse
 } def
 
-% Extracts Comment
-%SE handleComment: comment --
+% Extracts PI
+%SE handlePI: PI --
 /handlePI {
 	(?) search {
 		dup (') exch (handlPI: ') printa printa comment
@@ -181,6 +182,49 @@
 	
 } def
 
+% Extracts Data by Removing heading Spaces and Tabs
+%SE handleData: data --
+/handleData {
+	{
+		dup
+		<20> search {
+			%if length of pre is 0 then eliminate Space
+			dup length 0 eq {
+				pop pop		% pop pre, space
+				exch pop
+			} {
+				pop	pop	pop
+				exit
+			} ifelse
+		} {
+			pop
+			exit
+		} ifelse
+	} loop
+	{
+		dup
+		<09> search {
+			%if length of pre is 0 then eliminate Space
+			dup length 0 eq {
+				pop pop		% pop pre, space
+				exch pop
+			} {
+				pop	pop	pop
+				exit
+			} ifelse
+		} {
+			pop
+			exit
+		} ifelse
+	} loop
+	
+	dup length 0 gt {
+		tagData
+	} {
+		pop
+	} ifelse
+} def
+
 % Define Procedure for handling SearchTerm
 % SE analyzeSearchResult: pre --
 /analyzeSearchResult {
@@ -188,7 +232,7 @@
 	(<?) search {
 		% PI found
 		% Comment found
-		pop		% pop pre (Text before Comment begins)
+		handleData
 		pop		% pop <!--
 		handlePI
 	}
@@ -196,7 +240,7 @@
 		% searching for comment
 		(<!--) search {
 			% Comment found
-			pop		% pop pre (Text before Comment begins)
+			handleData
 			pop		% pop <!--
 			handleComment
 		}
@@ -205,16 +249,31 @@
 	    	%                                        OR string -- false)
 			(</) search {
 				% EndTag Found
-				pop		% pop pre (Text before Tag begins)
+				handleData
 				pop		% pop '</'
 				handleEndTag
 			} % if-path search
 			{ % else-path search
 				(<) search { % search for BeginTag
-					pop		% pop pre (Text before Tag begins)
+					handleData
 					pop		% pop '<'
-
-					prepareTag
+					dup
+					(/) search { % search for BeginEndTag
+						exch pop % removes '/'
+						
+						% check if length of post is 0
+						exch length 0 eq {
+							extractAttributes
+							tagOpenClose
+						} {
+							pop
+							prepareTag
+						} ifelse
+					}
+					{
+						pop
+						prepareTag
+					} ifelse
 				}
 				{
 					pop
@@ -269,8 +328,13 @@
 
 % SE: tagname attributes --
 /tagOpen {
-    (') exch (XX Opening: ') printa printa comment
+	exch (XX Opening: ') printa printa (' with Attributes: ') printa printa (') comment
     % FIXME: Output opening tag
+} def
+
+/tagOpenClose {
+    exch (XX Opening and Closing: ') printa printa (' with Attributes: ') printa printa (') comment
+    % FIXME: Output opening and closing tag
 } def
 
 % SE: data --
@@ -377,7 +441,7 @@
 					pop		% pop match ( > Sign )
 				} % if-path
 				{ % else-path (search)
-					pop						% pops string of search command
+					handleData						% pops string of search command
 					exit					% and exits loop
 				} ifelse
 			} loop
