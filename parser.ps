@@ -19,7 +19,8 @@
 % globale Variablen
 /debug false def
 /sentinelKey (itsTheEndOfTheDoc) def
-/indentLevel (indentLevel) def
+/xOffset (xOffset) def
+/yOffset (yOffset) def
 
 /printa {
     debug {
@@ -327,53 +328,47 @@
 % UNUSED
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
 % SE: tagname attributes --
 /tagOpen {
-	indentOutput
+	30 20 moveCursorBeforeUpdatingOffsets
 	
 	% output <tagname 
-	exch (<) print print 
+	exch (<) show show 
 	
 	% check if there are attributes
 	dup () eq {
 		% no attributes 
-		print (>) =
+		show (>) show
 	} { % else
-		( ) print print (>) =
+		( ) show show (>) show
 	} ifelse
-	
-	% increase indent level
-	indentLevel 4 add /indentLevel exch def
-	
-	end	% indentDict
 } def
 
 /tagOpenClose {
-	indentOutput
+	0 20 moveCursorBeforeUpdatingOffsets
 	% output tag in the form <tagname attributes />
-    exch (<) print print ( ) print print (/>) =
-	end	% indentDict
+    exch (<) show show ( ) show show (/>) show
 } def
 
 % SE: data --
 /tagData {
-	indentOutput
+	0 20 moveCursorBeforeUpdatingOffsets
 	% output data
-	=
-	end	% indentDict
+	show
 } def
 
 % SE: comment --
 /tagComment {
+	0 20 moveCursorBeforeUpdatingOffsets
 	% output comment in the form <!-- comment -->
-    ( -->) exch (<!-- ) print print =
+    ( -->) exch (<!-- ) show show show
 } def
 
 % SE: picontent --
 /tagPI {
+	0 40 moveCursorBeforeUpdatingOffsets
 	% print Processing Instruction in the form <? PI ?>
-    ( ?>) exch (<? ) print print =
+    ( ?>) exch (<? ) show show show
 } def
 
 % SE: tagName --
@@ -384,33 +379,63 @@
 
 % SE: tagName --
 /tagClose {
-	% decrease indent level
-	indentDict begin
-	indentLevel 4 sub /indentLevel exch def
-	end
-	
-	indentOutput
+	-30 20 moveCursorAfterUpdatingXOffset
 	% output closing tag in the form </tagname>
-    (>) exch (</) print print =
-	end	% indentDict
+    (>) exch (</) show show show
 } def
 
-/initIndentLevel {
-	/indentDict 1 dict def
-	indentDict begin
-	indentLevel 0 def	
+/initDrawing {
+	/Helvetica findfont
+	15 scalefont
+	setfont
+	gsave
+	newpath
+	
+	/positionDict 2 dict def
+	positionDict begin
+	xOffset 15 def
+	yOffset 760 def	
+	10 700 moveto
 } def
 
-/clearIndentLevel {
+/endDrawing {
+	end
+	
+	stroke
+	showpage
+} def
+
+/moveCursorBeforeUpdatingOffsets {
+	positionDict begin
+	
+	xOffset yOffset moveto
+	
+	yOffset exch sub /yOffset exch def
+    xOffset exch add /xOffset exch def
+	
 	end
 } def
 
-/indentOutput {
-	% indent output
-	indentDict begin
+/moveCursorAfterUpdatingXOffset {
+	positionDict begin
 	
-	% print ' ' indentLevel times
-	0 1 indentLevel {
+	exch
+	
+	xOffset exch add /xOffset exch def
+
+	xOffset yOffset moveto
+	
+	yOffset exch sub /yOffset exch def
+	
+	end
+} def
+
+/positionOutput {
+	% position output
+	positionDict begin
+	
+	% print ' ' xOffset times
+	0 1 xOffset {
 	    pop ( ) print
 	} for
 } def
@@ -465,7 +490,7 @@
     locals begin
     /buffer 128 string def				%setup buffer for readline
 
-	initIndentLevel
+	initDrawing
     sentinelOpen
 	currentfile buffer readline
 
@@ -503,7 +528,7 @@
 	input closefile
 
     sentinelClose
-	clearIndentLevel
+	endDrawing
 
     end % end of locals
 

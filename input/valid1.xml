@@ -1,10 +1,10 @@
 <html>
   <body>
-     <h1> Überschrift 1 </h1>
+     <h1> Wichtiger Text </h1>
 	<p style="test">
 		Das ist ein
 		test
-		<h2> Überschrift 2 </h2>
+		<h2> Nicht ganz so wichtiger Text </h2>
 		</p>
 		<div/>
 		<div style="height:100px;"/>

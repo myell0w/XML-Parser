@@ -3,7 +3,8 @@
 
 GS=gs
 PARSER=parser.ps
-FLAGS="-q -dNODISPLAY"
+#FLAGS="-q -dNODISPLAY"
+FLAGS="-q"
 
 $GS $FLAGS -sinputFilename="$1" $PARSER
 
