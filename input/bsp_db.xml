@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<uni>
+   <person>
+      <mnr>9401000</mnr>		
+      <vname>Adam</vname>
+      <nname>Riese</nname>
+   </person>
+   <person>
+      <mnr>9209989</mnr>		
+      <vname>Deliah</vname>
+      <nname>Caesar</nname>
+   </person>
+   <person>
+      <mnr>9209999</mnr>		
+      <vname>Berta</vname>
+      <nname>Caesar</nname>
+   </person>
+   <person>
+      <mnr>9309393</mnr>		
+      <vname>Paul</vname>
+      <nname>Faul</nname>
+   </person>
+   <lva id="1" name="SSD"/>
+   <lva id="2" name="DM"/>
+   <lva id="3" name="DBS"/>
+   <zeugnis mnr="9209989" id ="1" datum="2007-12-12" note="1"/>
+   <zeugnis mnr="9209989" id ="2" datum="2006-03-20" note="2"/>
+   <zeugnis mnr="9209999" id ="1" datum="2007-12-12" note="1"/>
+   <zeugnis mnr="9209999" id ="2" datum="2006-03-20" note="2"/>
+   <zeugnis mnr="9401000" id ="1" datum="2007-12-12" note="5"/>
+   <zeugnis mnr="9401000" id ="1" datum="2009-01-29" note="2"/>
+   <zeugnis mnr="9401000" id ="1" datum="2008-01-29" note="3"/>
+</uni>
