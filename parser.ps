@@ -15,7 +15,7 @@
 % Stack-Effekt-Kommentare haben die Form
 % SE funtionsname: parameter1 parameter2 parameterX -- returnwert1 returnwert2 returnwertX
 
-/debug true def
+/debug false def
 
 /printa {
     debug {
@@ -328,43 +328,43 @@
 
 % SE: tagname attributes --
 /tagOpen {
-	exch (XX Opening: ') printa printa (' with Attributes: ') printa printa (') comment
-    % FIXME: Output opening tag
+	% output tag in the form <tagname attributes>
+	exch (<) print print ( ) print print (>) =
 } def
 
 /tagOpenClose {
-    exch (XX Opening and Closing: ') printa printa (' with Attributes: ') printa printa (') comment
-    % FIXME: Output opening and closing tag
+	% output tag in the form <tagname attributes />
+    exch (<) print print ( ) print print (/>) =
 } def
 
 % SE: data --
 /tagData {
-    (') exch (XX Data: ') printa printa comment
-    % FIXME: Output "normal" text
+	% output data
+	=
 } def
 
 % SE: comment --
 /tagComment {
-    (') exch (XX Comment: ') printa printa comment
-    % FIXME: Output comment-style text
+	% output comment in the form <!-- comment -->
+    ( -->) exch (<!-- ) print print =
 } def
 
 % SE: picontent --
 /tagPI {
-    (') exch (XX Processing instruction:') printa printa comment
-    % FIXME: Output <? ... ?> with the right colors
+	% print Processing Instruction in the form <? PI ?>
+    ( ?>) exch (<? ) print print =
 } def
 
 % SE: tagName --
 /tagIgnore {
-    (') exch (XX Ignoring closing tag: ') printa printa comment
     % FIXME: Output closing tag as "strikethrough"
+	pop
 } def
 
 % SE: tagName --
 /tagClose {
-    (') exch (XX Closing: ') printa printa comment
-    % FIXME: Output closing tag
+	% output closing tag in the form </tagname>
+    (>) exch (</) print print =
 } def
 
 /sentinelKey (itsTheEndOfTheDoc) def
