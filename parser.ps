@@ -288,46 +288,6 @@
 	} ifelse
 } def
 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% UNUSED
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% prints a dictionary
-% SE printDictionary dictionary  –-
-/printDictionary { %def
-	(\nDictionary: \n) print
-	{ %forall
-            % name value
-            exch
-            (=>)
-            exch
-            = print =
-    } forall
-} bind def
-
-% prints the top of a dictionary
-% SE printDictionary dictionary  –-
-/printDictionaryTop { %def
-	(\nDictionary Top: \n) print
-	{ %forall
-		exch % name first
-	    (key: ) print ==
-	    %( = ) print
-	    (val: ) print ==
-		exit
-    } forall
-} bind def
-
-% Reads the path to a file from stdin
-% SE readPathToInputFile:  -- path
-/readPathToInputFile {
-	(Pfad zur XML-Datei: ) print flush
-    (%stdin) (r) file 100 string readline pop
-} def
-
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% UNUSED
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 % SE: tagname attributes --
 /tagOpen {
 	30 20 moveCursorBeforeUpdatingOffsets
@@ -430,16 +390,6 @@
 	end
 } def
 
-/positionOutput {
-	% position output
-	positionDict begin
-	
-	% print ' ' xOffset times
-	0 1 xOffset {
-	    pop ( ) print
-	} for
-} def
-
 /sentinelOpen {
     /sentinel 1 dict def
     sentinel begin
@@ -536,5 +486,67 @@
 
 } def
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % call main-procedure
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 main
+
+
+
+
+
+
+
+
+
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% UNUSED
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% prints a dictionary
+% SE printDictionary dictionary  –-
+/printDictionary { %def
+	(\nDictionary: \n) print
+	{ %forall
+            % name value
+            exch
+            (=>)
+            exch
+            = print =
+    } forall
+} bind def
+
+% prints the top of a dictionary
+% SE printDictionary dictionary  –-
+/printDictionaryTop { %def
+	(\nDictionary Top: \n) print
+	{ %forall
+		exch % name first
+	    (key: ) print ==
+	    %( = ) print
+	    (val: ) print ==
+		exit
+    } forall
+} bind def
+
+% Reads the path to a file from stdin
+% SE readPathToInputFile:  -- path
+/readPathToInputFile {
+	(Pfad zur XML-Datei: ) print flush
+    (%stdin) (r) file 100 string readline pop
+} def
+
+/positionOutput {
+	% position output
+	positionDict begin
+	
+	% print ' ' xOffset times
+	0 1 xOffset {
+	    pop ( ) print
+	} for
+} def
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% UNUSED
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
