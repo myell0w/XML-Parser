@@ -144,12 +144,12 @@
                 dup currentdict exch known {
                     (found on top) comment
                     % endtag is on currentdict
-                    lastTagName tagClose
+                    lastTagName 0 0 1 tagClose
                     end
                     exit
                 } { % else
                     (still not found) comment
-                    lastTagName tagClose
+                    lastTagName 1 0 0 tagClose
                     end
                 } ifelse
             } loop
@@ -166,7 +166,7 @@
 %SE handleComment: comment --
 /handleComment {
 	(--) search {
-		dup (') exch (handlComment: ') printa printa comment
+		dup (') exch (handleComment: ') printa printa comment
 		tagComment
 		pop
 	} {
@@ -178,7 +178,7 @@
 %SE handlePI: PI --
 /handlePI {
 	(?) search {
-		dup (') exch (handlPI: ') printa printa comment
+		dup (') exch (handlePI: ') printa printa comment
 		tagPI
 		pop
 	} {
@@ -290,7 +290,7 @@
 
 % SE: tagname attributes --
 /tagOpen {
-	30 20 moveCursorBeforeUpdatingOffsets
+	25 17 moveCursorBeforeUpdatingOffsets
 	
 	% output <tagname 
 	exch (<) show show 
@@ -305,51 +305,84 @@
 } def
 
 /tagOpenClose {
-	0 20 moveCursorBeforeUpdatingOffsets
+	0 17 moveCursorBeforeUpdatingOffsets
 	% output tag in the form <tagname attributes />
     exch (<) show show ( ) show show (/>) show
 } def
 
 % SE: data --
 /tagData {
-	0 20 moveCursorBeforeUpdatingOffsets
+	setDataFont
+	0 17 moveCursorBeforeUpdatingOffsets
 	% output data
 	show
+	setTagFont
 } def
 
 % SE: comment --
 /tagComment {
-	0 20 moveCursorBeforeUpdatingOffsets
+	setCommentFont
+	0 17 moveCursorBeforeUpdatingOffsets
 	% output comment in the form <!-- comment -->
     ( -->) exch (<!-- ) show show show
+	setTagFont
 } def
 
 % SE: picontent --
 /tagPI {
-	0 40 moveCursorBeforeUpdatingOffsets
+	setCommentFont
+	0 34 moveCursorBeforeUpdatingOffsets
 	% print Processing Instruction in the form <? PI ?>
     ( ?>) exch (<? ) show show show
+	setTagFont
 } def
 
 % SE: tagName --
 /tagIgnore {
-    % FIXME: Output closing tag as "strikethrough"
-	pop
+	setIgnoreFont
+	0 17 moveCursorBeforeUpdatingOffsets
+	 ( -->) exch (<!-- Ignored Tag: ) show show show
+	
+	setTagFont
 } def
 
 % SE: tagName --
 /tagClose {
-	-30 20 moveCursorAfterUpdatingXOffset
+	setrgbcolor
+	-25 17 moveCursorAfterUpdatingXOffset
 	% output closing tag in the form </tagname>
     (>) exch (</) show show show
 } def
 
+% SE: --
+/setTagFont {
+	/Helvetica-Bold findfont 12 scalefont setfont
+} def
+
+% SE: --
+/setDataFont {
+	/Helvetica findfont 12 scalefont setfont
+	0 0 0 setrgbcolor
+} def
+
+% SE: --
+/setCommentFont {
+	/Helvetica findfont 12 scalefont setfont
+	0.5 0.5 0.5 setrgbcolor
+} def
+
+% SE: --
+/setIgnoreFont {
+	/Helvetica findfont 12 scalefont setfont
+	1 0 0 setrgbcolor
+} def
+
+% SE: --
 /initDrawing {
-	/Helvetica findfont
-	15 scalefont
-	setfont
 	gsave
 	newpath
+	setTagFont
+	0 0 1 setrgbcolor
 	
 	/positionDict 2 dict def
 	positionDict begin
@@ -358,6 +391,7 @@
 	10 700 moveto
 } def
 
+% SE: --
 /endDrawing {
 	end
 	
@@ -365,6 +399,7 @@
 	showpage
 } def
 
+% SE: xOffset yOffset --
 /moveCursorBeforeUpdatingOffsets {
 	positionDict begin
 	
@@ -376,6 +411,7 @@
 	end
 } def
 
+% SE: xOffset yOffset --
 /moveCursorAfterUpdatingXOffset {
 	positionDict begin
 	
@@ -390,12 +426,14 @@
 	end
 } def
 
+% SE: --
 /sentinelOpen {
     /sentinel 1 dict def
     sentinel begin
     sentinelKey (..as we know it) def
 } def
 
+% SE: --
 /sentinelClose {
     % dictstack abbauen, bis sentinel gefunden
     {
@@ -403,7 +441,7 @@
             exit
         } if
 
-        lastTagName tagClose
+        lastTagName 1 0 0 tagClose
         end
     } loop
 
