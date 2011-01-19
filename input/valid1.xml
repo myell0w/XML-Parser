@@ -1,8 +1,11 @@
 <html>
   <body>
      <h1> Überschrift 1 </h1>
-	<p style="test"> Das ist ein
-		test </p>
+	<p style="test">
+		Das ist ein
+		test
+		<h2> Überschrift 2 </h2>
+		</p>
 		<div/>
 		<div style="height:100px;"/>
   </body>
