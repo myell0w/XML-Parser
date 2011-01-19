@@ -15,7 +15,11 @@
 % Stack-Effekt-Kommentare haben die Form
 % SE funtionsname: parameter1 parameter2 parameterX -- returnwert1 returnwert2 returnwertX
 
+
+% globale Variablen
 /debug false def
+/sentinelKey (itsTheEndOfTheDoc) def
+/indentLevel (indentLevel) def
 
 /printa {
     debug {
@@ -74,8 +78,8 @@
 
 % Procedure to store Tag as Dictionairy
 /prepareTag {
-        (prepareTag) comment
-        % Local variables dict has two entries (attributes + tagname)
+    (prepareTag) comment
+    % Local variables dict has two entries (attributes + tagname)
 	100 dict begin
 
     extractAttributes
@@ -85,9 +89,9 @@
 	% store pre (= name of tag) in variable
 	/tagname exch def
 
-        /newdict 100 dict def
+    /newdict 100 dict def
 
-        tagname attributes tagOpen
+    tagname attributes tagOpen
 
 	% store into new dictionary
 	newdict begin
@@ -315,10 +319,8 @@
 % Reads the path to a file from stdin
 % SE readPathToInputFile:  -- path
 /readPathToInputFile {
-    % TODO: comment out, hardcoded for testing-purposes
 	(Pfad zur XML-Datei: ) print flush
     (%stdin) (r) file 100 string readline pop
-%	(input/valid2.xml)
 } def
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -328,6 +330,8 @@
 
 % SE: tagname attributes --
 /tagOpen {
+	indentOutput
+	
 	% output <tagname 
 	exch (<) print print 
 	
@@ -338,17 +342,26 @@
 	} { % else
 		( ) print print (>) =
 	} ifelse
+	
+	% increase indent level
+	indentLevel 4 add /indentLevel exch def
+	
+	end	% indentDict
 } def
 
 /tagOpenClose {
+	indentOutput
 	% output tag in the form <tagname attributes />
     exch (<) print print ( ) print print (/>) =
+	end	% indentDict
 } def
 
 % SE: data --
 /tagData {
+	indentOutput
 	% output data
 	=
+	end	% indentDict
 } def
 
 % SE: comment --
@@ -371,11 +384,36 @@
 
 % SE: tagName --
 /tagClose {
+	% decrease indent level
+	indentDict begin
+	indentLevel 4 sub /indentLevel exch def
+	end
+	
+	indentOutput
 	% output closing tag in the form </tagname>
     (>) exch (</) print print =
+	end	% indentDict
 } def
 
-/sentinelKey (itsTheEndOfTheDoc) def
+/initIndentLevel {
+	/indentDict 1 dict def
+	indentDict begin
+	indentLevel 0 def	
+} def
+
+/clearIndentLevel {
+	end
+} def
+
+/indentOutput {
+	% indent output
+	indentDict begin
+	
+	% print ' ' indentLevel times
+	0 1 indentLevel {
+	    pop ( ) print
+	} for
+} def
 
 /sentinelOpen {
     /sentinel 1 dict def
@@ -420,19 +458,20 @@
 % Main-Procedure
 % SE main:  --
 /main {
-        /locals 100 dict def
+    /locals 100 dict def
 
-        checkCLIParams
+    checkCLIParams
 
-        locals begin
-        /buffer 128 string def				%setup buffer for readline
+    locals begin
+    /buffer 128 string def				%setup buffer for readline
 
-        sentinelOpen
+	initIndentLevel
+    sentinelOpen
 	currentfile buffer readline
 
-        locals begin
-            /input inputFilename (r) file def
-        end
+    locals begin
+        /input inputFilename (r) file def
+    end
 
 	{ % start loop
                 locals begin
@@ -464,6 +503,7 @@
 	input closefile
 
     sentinelClose
+	clearIndentLevel
 
     end % end of locals
 
@@ -473,4 +513,3 @@
 
 % call main-procedure
 main
-% make object executable
