@@ -156,26 +156,46 @@
         pop
 } def
 
+% Extracts Comment
+%SE handleComment: comment --
+/handleEndTag {
+	(-->) search {
+		dup (') exch (handlComment: ') printa printa comment
+		tagComment
+		pop
+	}
+	
+} def
+
 % Define Procedure for handling SearchTerm
 % SE analyzeSearchResult: pre --
 /analyzeSearchResult {
-	% searching for '</' in pre 	(SE search: string -- post match pre true
-    %                                        OR string -- false)
-	(</) search {
-		% EndTag Found
-		pop		% pop pre (Text before Tag begins)
-		pop		% pop '</'
-		handleEndTag
-	} % if-path search
-	{ % else-path search
-		(<) search { % search for BeginTag
+	% searching for comment
+	(<!--) search {
+		% Comment found
+		pop		% pop pre (Text before Comment begins)
+		pop		% pop <!--
+		handleComment
+	}
+	{
+		% searching for '</' in pre 	(SE search: string -- post match pre true
+    	%                                        OR string -- false)
+		(</) search {
+			% EndTag Found
 			pop		% pop pre (Text before Tag begins)
-			pop		% pop '<'
+			pop		% pop '</'
+			handleEndTag
+		} % if-path search
+		{ % else-path search
+			(<) search { % search for BeginTag
+				pop		% pop pre (Text before Tag begins)
+				pop		% pop '<'
 
-			prepareTag
-		}
-		{
-			pop
+				prepareTag
+			}
+			{
+				pop
+			} ifelse
 		} ifelse
 	} ifelse
 } def
@@ -288,7 +308,7 @@
         /requireParameters {
             {
                 dup systemdict exch known not {
-                    (Missing parameter: -d) print =
+                    (Missing parameter: -d ) print =
                     quit
                 } if
             } forall
@@ -327,15 +347,15 @@
 		input buffer readline {
 			{ %start loop for multiple tags in one line
 				% searching for '>'	(SE search: string -- post match pre true
-		    		%                            OR string -- false)
-					(>) search {
-						analyzeSearchResult
-						pop		% pop match ( > Sign )
-					} % if-path
-					{ % else-path (search)
-						pop						% pops string of search command
-						exit					% and exits loop
-					} ifelse
+		    	%                            OR string -- false)
+				(>) search {
+					analyzeSearchResult
+					pop		% pop match ( > Sign )
+				} % if-path
+				{ % else-path (search)
+					pop						% pops string of search command
+					exit					% and exits loop
+				} ifelse
 			} loop
 		}
 		{ % else-path (readline)
