@@ -92,7 +92,7 @@
 
     /newdict 100 dict def
 
-    tagname attributes tagOpen
+    tagname attributes 0 0 1 tagOpen
 
 	% store into new dictionary
 	newdict begin
@@ -290,6 +290,7 @@
 
 % SE: tagname attributes --
 /tagOpen {
+	setrgbcolor
 	25 17 moveCursorBeforeUpdatingOffsets
 	
 	% output <tagname 
