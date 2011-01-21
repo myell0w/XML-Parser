@@ -196,242 +196,242 @@
 % Extracts Data by Removing heading Spaces and Tabs
 % SE: data --
 /handleData {
-        {
-                dup
-                <20> search {
-                        %if length of pre is 0 then eliminate Space
-                        dup length 0 eq {
-                                pop pop         % pop pre, space
-                                exch pop
-                        } {
-                                pop     pop     pop
-                                exit
-                        } ifelse
-                } {
-                        pop
-                        exit
-                } ifelse
-        } loop
-        {
-                dup
-                <09> search {
-                        %if length of pre is 0 then eliminate Space
-                        dup length 0 eq {
-                                pop pop         % pop pre, space
-                                exch pop
-                        } {
-                                pop     pop     pop
-                                exit
-                        } ifelse
-                } {
-                        pop
-                        exit
-                } ifelse
-        } loop
-
-        dup length 0 gt {
-                tagData
+    {
+        dup
+        <20> search {
+            %if length of pre is 0 then eliminate Space
+            dup length 0 eq {
+                pop pop % pop pre + space
+                exch pop
+            } {
+                pop pop pop
+                exit
+            } ifelse
         } {
-                pop
+            pop
+            exit
         } ifelse
+    } loop
+    {
+        dup
+        <09> search {
+            %if length of pre is 0 then eliminate Space
+            dup length 0 eq {
+                pop pop % pop pre + space
+                exch pop
+            } {
+                pop pop pop
+                exit
+            } ifelse
+        } {
+            pop
+            exit
+        } ifelse
+    } loop
+
+    dup length 0 gt {
+        tagData
+    } {
+        pop
+    } ifelse
 } def
 
 % Define Procedure for handling SearchTerm
 % SE: pre --
 /analyzeSearchResult {
-        % searching for PI
-        (<?) search {
-                % PI found
-                % Comment found
-                handleData
-                pop             % pop <!--
-                handlePI
+    % searching for PI
+    (<?) search {
+        % PI found
+        handleData
+        pop         % pop <?
+        handlePI
+    }
+    {
+        % searching for comment
+        (<!--) search {
+            % Comment found
+            handleData
+            pop         % pop <!--
+            handleComment
         }
         {
-                % searching for comment
-                (<!--) search {
-                        % Comment found
-                        handleData
-                        pop             % pop <!--
-                        handleComment
+            % searching for '</' in pre
+            % SE search: string -- post match pre true
+            %        or: string -- false
+            (</) search {
+                % EndTag Found
+                handleData
+                pop         % pop '</'
+                handleEndTag
+            } % if-path search
+            { % else-path search
+                (<) search { % search for BeginTag
+                    handleData
+                    pop         % pop '<'
+                    dup
+                    (/) search { % search for BeginEndTag
+                        exch pop % removes '/'
+
+                        % check if length of post is 0
+                        exch length 0 eq {
+                            extractAttributes
+                            tagOpenClose
+                        } {
+                            pop
+                            prepareTag
+                        } ifelse
+                    }
+                    {
+                        pop
+                        prepareTag
+                    } ifelse
                 }
                 {
-                        % searching for '</' in pre     (SE search: string -- post match pre true
-                %                                        OR string -- false)
-                        (</) search {
-                                % EndTag Found
-                                handleData
-                                pop             % pop '</'
-                                handleEndTag
-                        } % if-path search
-                        { % else-path search
-                                (<) search { % search for BeginTag
-                                        handleData
-                                        pop             % pop '<'
-                                        dup
-                                        (/) search { % search for BeginEndTag
-                                                exch pop % removes '/'
-
-                                                % check if length of post is 0
-                                                exch length 0 eq {
-                                                        extractAttributes
-                                                        tagOpenClose
-                                                } {
-                                                        pop
-                                                        prepareTag
-                                                } ifelse
-                                        }
-                                        {
-                                                pop
-                                                prepareTag
-                                        } ifelse
-                                }
-                                {
-                                        pop
-                                } ifelse
-                        } ifelse
+                    pop
                 } ifelse
+            } ifelse
         } ifelse
+    } ifelse
 } def
 
 % SE: tagname attributes --
 /tagOpen {
-        setrgbcolor
-        25 17 moveCursorBeforeUpdatingOffsets
+    setrgbcolor
+    25 17 moveCursorBeforeUpdatingOffsets
 
-        % output <tagname
-        exch (<) show show
+    % output <tagname
+    exch (<) show show
 
-        % check if there are attributes
-        dup () eq {
-                % no attributes
-                show (>) show
-        } { % else
-                ( ) show show (>) show
-        } ifelse
+    % check if there are attributes
+    dup () eq {
+        % no attributes
+        show (>) show
+    } { % else
+        ( ) show show (>) show
+    } ifelse
 } def
 
 % SE: tagname attributes --
 /tagOpenClose {
-        0 17 moveCursorBeforeUpdatingOffsets
-        % output tag in the form <tagname attributes />
+    0 17 moveCursorBeforeUpdatingOffsets
+    % output tag in the form <tagname attributes />
     exch (<) show show ( ) show show (/>) show
 } def
 
 % SE: data --
 /tagData {
-        setDataFont
-        0 17 moveCursorBeforeUpdatingOffsets
-        % output data
-        show
-        setTagFont
+    setDataFont
+    0 17 moveCursorBeforeUpdatingOffsets
+
+    % output data
+    show
+    setTagFont
 } def
 
 % SE: comment --
 /tagComment {
-        setCommentFont
-        0 17 moveCursorBeforeUpdatingOffsets
-        % output comment in the form <!-- comment -->
+    setCommentFont
+    0 17 moveCursorBeforeUpdatingOffsets
+
+    % output comment in the form <!-- comment -->
     ( -->) exch (<!-- ) show show show
-        setTagFont
+    setTagFont
 } def
 
 % SE: picontent --
 /tagPI {
-        setCommentFont
-        0 34 moveCursorBeforeUpdatingOffsets
-        % print Processing Instruction in the form <? PI ?>
+    setCommentFont
+    0 34 moveCursorBeforeUpdatingOffsets
+
+    % print Processing Instruction in the form <? PI ?>
     ( ?>) exch (<? ) show show show
-        setTagFont
+    setTagFont
 } def
 
 % SE: tagName --
 /tagIgnore {
-        setIgnoreFont
-        0 17 moveCursorBeforeUpdatingOffsets
-         ( -->) exch (<!-- Ignored Tag: ) show show show
+    setIgnoreFont
+    0 17 moveCursorBeforeUpdatingOffsets
 
-        setTagFont
+    % Print ignored tag in output (as comment!)
+    ( -->) exch (<!-- Ignored Tag: ) show show show
+    setTagFont
 } def
 
 % SE: tagName --
 /tagClose {
-        setrgbcolor
-        -25 17 moveCursorAfterUpdatingXOffset
-        % output closing tag in the form </tagname>
+    setrgbcolor
+    -25 17 moveCursorAfterUpdatingXOffset
+
+    % output closing tag in the form </tagname>
     (>) exch (</) show show show
 } def
 
 % SE: --
 /setTagFont {
-        /Helvetica-Bold findfont 12 scalefont setfont
+    /Helvetica-Bold findfont 12 scalefont setfont
 } def
 
 % SE: --
 /setDataFont {
-        /Helvetica findfont 12 scalefont setfont
-        0 0 0 setrgbcolor
+    /Helvetica findfont 12 scalefont setfont
+    0 0 0 setrgbcolor
 } def
 
 % SE: --
 /setCommentFont {
-        /Helvetica findfont 12 scalefont setfont
-        0.5 0.5 0.5 setrgbcolor
+    /Helvetica findfont 12 scalefont setfont
+    0.5 0.5 0.5 setrgbcolor
 } def
 
 % SE: --
 /setIgnoreFont {
-        /Helvetica findfont 12 scalefont setfont
-        1 0 0 setrgbcolor
+    /Helvetica findfont 12 scalefont setfont
+    1 0 0 setrgbcolor
 } def
 
 % SE: --
 /initDrawing {
-        gsave
-        newpath
-        setTagFont
-        0 0 1 setrgbcolor
+    gsave
+    newpath
+    setTagFont
+    0 0 1 setrgbcolor
 
-        /positionDict 2 dict def
-        positionDict begin
-        xOffset 15 def
-        yOffset 760 def
-        10 700 moveto
+    /positionDict 2 dict def
+    positionDict begin
+    xOffset 15 def
+    yOffset 760 def
+    10 700 moveto
 } def
 
 % SE: --
 /endDrawing {
-        end
+    end
 
-        stroke
-        showpage
+    stroke
+    showpage
 } def
 
 % SE: xOffset yOffset --
 /moveCursorBeforeUpdatingOffsets {
-        positionDict begin
-
+    positionDict begin
         xOffset yOffset moveto
 
         yOffset exch sub /yOffset exch def
-    xOffset exch add /xOffset exch def
-
-        end
+        xOffset exch add /xOffset exch def
+    end
 } def
 
 % SE: xOffset yOffset --
 /moveCursorAfterUpdatingXOffset {
-        positionDict begin
-
+    positionDict begin
         exch
 
         xOffset exch add /xOffset exch def
-
         xOffset yOffset moveto
 
         yOffset exch sub /yOffset exch def
-
-        end
+    end
 } def
 
 % SE: --
@@ -481,67 +481,70 @@
 /main {
     /locals 100 dict def
 
+    % Has the user supplied all required command line args?
     checkCLIParams
 
     locals begin
-    /buffer 128 string def                              %setup buffer for readline
-
         initDrawing
-    sentinelOpen
-        currentfile buffer readline
+        sentinelOpen
 
-    locals begin
-        /input inputFilename (r) file def
-    end
+        % Temporary push locals on top, so we can
+        % write values into it (because sentinel
+        % is currently at the top of the stack!)
+        locals begin
+            /input inputFilename (r) file def
+        end
 
-        { % start loop
-                locals begin
-                    /buffer 128 string def                              %setup buffer for readline
-                end
+        % Here comes our "read line - process line" loop
+        {
+            locals begin
+                % Allocate a new buffer for every line
+                /buffer 128 string def
+            end
 
-                % reading one line (SE readline: input buffer -- string bool)
-                input buffer readline {
-                        { %start loop for multiple tags in one line
-                                % searching for '>'     (SE search: string -- post match pre true
-                        %                            OR string -- false)
-                                (>) search {
-                                        analyzeSearchResult
-                                        pop             % pop match ( > Sign )
-                                } % if-path
-                                { % else-path (search)
-                                        handleData                                              % pops string of search command
-                                        exit                                    % and exits loop
-                                } ifelse
-                        } loop
-                }
-                { % else-path (readline)
-                        pop             % pops string for readline command
-                        exit    % and exits loop
-                } ifelse
+            % reading one line (SE readline: input buffer -- string bool)
+            input buffer readline {
+                % start loop for multiple tags in one line
+                {
+                    % searching for end of a tag '>', and iterate
+                    % with rest-of-line util there is no more data
+
+                    % SE search: string -- post match pre true
+                    %        or: string -- false
+                    (>) search {
+                        analyzeSearchResult
+                        pop % pop '>'
+                    } { % else
+                        handleData
+                        exit % exit the intra-line loop
+                    } ifelse
+                } loop
+            } { % else-path (readline)
+                % No more data to read - exit read loop
+                pop
+                exit
+            } ifelse
         } loop
 
-        % close File
+        % Clean up - close input file
         input closefile
 
-    sentinelClose
+        % Search for sentinel, close all remaining tags
+        % that are still open and haven't been closed yet
+        sentinelClose
+
+        % We can now finish drawing the XML tree
         endDrawing
 
     end % end of locals
 
+    % If we arrive here, everything is okay :)
     quit
-
 } def
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% call main-procedure
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% After everything is defined, call main
 main
-
-
-
-
-
 
 
 
