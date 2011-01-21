@@ -55,3 +55,64 @@ for idx, file in enumerate(files):
     faketyping(color.blue(cmd) + '\n')
     os.system(cmd)
 
+os.system('clear')
+box('Command line argument handling', color.red)
+print """
+    What if we don't specify %s?
+
+/checkCLIParams {
+    1 dict begin
+        %% SE: [list of parameters] --
+        /requireParameters {
+            {
+                dup systemdict exch known not {
+                    (Missing parameter: -d) print =
+                    quit
+                } if
+            } forall
+        } def
+
+        %% List all required parameters here
+        [
+            (inputFilename)
+        ] requireParameters
+    end
+} def
+
+
+""" % (color.blue('-dinputFilename=...'),)
+
+cmd = 'gs parser.ps'
+sys.stdout.write('$ ')
+sys.stdout.flush()
+raw_input()
+sys.stdout.write(UP+'$ ')
+faketyping(color.blue(cmd) + '\n')
+os.system(cmd)
+
+raw_input()
+
+os.system('clear')
+faketyping("""
+
+
+
+
+                      %s
+
+
+
+                        %s
+
+
+
+""" % (color.red('End of parser.ps demonstration :)'),
+       color.green('Thank you for your attention!')))
+
+
+try:
+    while True:
+        raw_input()
+except:
+    pass
+
