@@ -90,7 +90,7 @@
 	100 dict begin
 
     extractAttributes
-	
+
 	/attributes exch def
 
 	% store pre (= name of tag) in variable
@@ -190,7 +190,7 @@
 	} {
 		pop
 	} ifelse
-	
+
 } def
 
 % Extracts Data by Removing heading Spaces and Tabs
@@ -228,7 +228,7 @@
 			exit
 		} ifelse
 	} loop
-	
+
 	dup length 0 gt {
 		tagData
 	} {
@@ -271,7 +271,7 @@
 					dup
 					(/) search { % search for BeginEndTag
 						exch pop % removes '/'
-						
+
 						% check if length of post is 0
 						exch length 0 eq {
 							extractAttributes
@@ -298,13 +298,13 @@
 /tagOpen {
 	setrgbcolor
 	25 17 moveCursorBeforeUpdatingOffsets
-	
-	% output <tagname 
-	exch (<) show show 
-	
+
+	% output <tagname
+	exch (<) show show
+
 	% check if there are attributes
 	dup () eq {
-		% no attributes 
+		% no attributes
 		show (>) show
 	} { % else
 		( ) show show (>) show
@@ -350,7 +350,7 @@
 	setIgnoreFont
 	0 17 moveCursorBeforeUpdatingOffsets
 	 ( -->) exch (<!-- Ignored Tag: ) show show show
-	
+
 	setTagFont
 } def
 
@@ -391,18 +391,18 @@
 	newpath
 	setTagFont
 	0 0 1 setrgbcolor
-	
+
 	/positionDict 2 dict def
 	positionDict begin
 	xOffset 15 def
-	yOffset 760 def	
+	yOffset 760 def
 	10 700 moveto
 } def
 
 % SE: --
 /endDrawing {
 	end
-	
+
 	stroke
 	showpage
 } def
@@ -410,27 +410,27 @@
 % SE: xOffset yOffset --
 /moveCursorBeforeUpdatingOffsets {
 	positionDict begin
-	
+
 	xOffset yOffset moveto
-	
+
 	yOffset exch sub /yOffset exch def
     xOffset exch add /xOffset exch def
-	
+
 	end
 } def
 
 % SE: xOffset yOffset --
 /moveCursorAfterUpdatingXOffset {
 	positionDict begin
-	
+
 	exch
-	
+
 	xOffset exch add /xOffset exch def
 
 	xOffset yOffset moveto
-	
+
 	yOffset exch sub /yOffset exch def
-	
+
 	end
 } def
 
@@ -586,7 +586,7 @@ main
 /positionOutput {
 	% position output
 	positionDict begin
-	
+
 	% print ' ' xOffset times
 	0 1 xOffset {
 	    pop ( ) print
