@@ -22,6 +22,9 @@
 /xOffset (xOffset) def
 /yOffset (yOffset) def
 
+
+% Debug-Printer ohne Newline
+% SE: text --
 /printa {
     debug {
         print
@@ -30,6 +33,8 @@
     } ifelse
 } def
 
+% Debug-Printer mit Newline
+% SE: text --
 /comment {
     debug {
         =
@@ -40,7 +45,7 @@
 
 
 % Get name of last opened tag (based on dict stack)
-% SE lastTagName: -- nameOfLastOpenedTag
+% SE: -- nameOfLastOpenedTag
 /lastTagName {
     % assertion: currentdict only has one key!
     currentdict length 1 ne {
@@ -60,7 +65,7 @@
 } def
 
 % Procedure to exclude Attributes
-% SE extractAttributes: tagWithAttributes -- tag attributes
+% SE: tagWithAttributes -- tag attributes
 /extractAttributes {
 	% Search for a single whitespace character
 	( ) search { % then-branch of ifelse
@@ -78,6 +83,7 @@
 } def
 
 % Procedure to store Tag as Dictionairy
+% SE: tagWithAttributes --
 /prepareTag {
     (prepareTag) comment
     % Local variables dict has two entries (attributes + tagname)
@@ -107,7 +113,7 @@
 } def
 
 % Procedure to handle End-Tag
-% SE handleEndTag: endTag --
+% SE: endTag --
 /handleEndTag {
         dup (') exch (handleEndTag: ') printa printa comment
 
@@ -163,7 +169,7 @@
 } def
 
 % Extracts Comment
-%SE handleComment: comment --
+% SE: comment --
 /handleComment {
 	(--) search {
 		dup (') exch (handleComment: ') printa printa comment
@@ -174,8 +180,8 @@
 	} ifelse
 } def
 
-% Extracts PI
-%SE handlePI: PI --
+% Extracts processing instruction
+% SE: pi --
 /handlePI {
 	(?) search {
 		dup (') exch (handlePI: ') printa printa comment
@@ -188,7 +194,7 @@
 } def
 
 % Extracts Data by Removing heading Spaces and Tabs
-%SE handleData: data --
+% SE: data --
 /handleData {
 	{
 		dup
@@ -231,7 +237,7 @@
 } def
 
 % Define Procedure for handling SearchTerm
-% SE analyzeSearchResult: pre --
+% SE: pre --
 /analyzeSearchResult {
 	% searching for PI
 	(<?) search {
@@ -305,6 +311,7 @@
 	} ifelse
 } def
 
+% SE: tagname attributes --
 /tagOpenClose {
 	0 17 moveCursorBeforeUpdatingOffsets
 	% output tag in the form <tagname attributes />
@@ -470,7 +477,7 @@
 } def
 
 % Main-Procedure
-% SE main:  --
+% SE: --
 /main {
     /locals 100 dict def
 
@@ -589,3 +596,4 @@ main
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % UNUSED
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
