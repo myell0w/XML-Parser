@@ -47,7 +47,7 @@ for idx, file in enumerate(files):
     box(file + ' (%d/%d)' % (idx+1, len(files)),
         color.red if 'invalid' in file else color.green)
     print open(file).read()
-    cmd = 'gs -q -sinputFilename=%s parser.ps' % file
+    cmd = 'gs -sinputFilename=%s parser.ps' % file
     sys.stdout.write('$ ')
     sys.stdout.flush()
     raw_input()
