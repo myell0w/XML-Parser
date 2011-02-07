@@ -1,0 +1,16 @@
+%!
+/buffer 128 string def
+currentfile buffer readline
+
+
+/passwd (/Users/philip/test.xml) (r) file def
+{ 
+	passwd buffer readline {
+		dup (<) search {
+			pop pop 
+			print(\n) print flush
+			pop
+		}{ pop } ifelse
+	}{ exit } ifelse
+} loop
+passwd closefile

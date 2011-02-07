@@ -1,0 +1,57 @@
+Dictionary Stack Manipulation:
+===
+
+begin dict begin 
+------
+pushes dict on the dictionary stack, making it the current dictionary and installing it as the first of the dictionaries consulted during implicit name lookup and by def, load, store, and where.
+
+
+end - end
+---------
+pops the current dictionary off the dictionary stack, making the dictionary below it the current dictionary. If end tries to pop the bottommost instance of userdict, it executes the error dictstackunderflow.
+
+
+load key load value 
+----------
+
+searches for key in each dictionary on the dictionary stack, starting with the topmost (current) dictionary. If key is found in some dictionary, load pushes the associated value on the operand stack. If key is not found in any dictionary on the dictionary stack, load executes the error undefined. 
+
+load looks up key the same way the interpreter looks up executable names that it encounters during execution. However, load always pushes the associated value on the operand stack; it never executes that value. 
+
+EXAMPLE:
+
+/avg {add 2 div} def 
+/avg load -> {add 2 div}
+
+
+key value store
+------
+replaces topmost definition of key
+
+
+dict key get
+-------
+any
+returns value in dict associated to key
+
+dict key value put
+------------
+associates key value into dict
+
+
+dict key known
+---------------
+bool
+tests whether key is in dict
+
+
+key where
+-------------
+dict true OR false
+finds dict in which key is defined
+
+
+currentdict - currentdict dict 
+------------
+
+pushes the current dictionary (the dictionary on top of the dictionary stack) on the operand stack. currentdict does not pop the dictionary stack; it just pushes a duplicate of its top element on the operand stack.

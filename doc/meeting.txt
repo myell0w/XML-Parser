@@ -1,0 +1,116 @@
+<html>
+	<div>
+		<a>
+	</div>
+</html>
+
+Stack
+html
+div
+a
+
+out: /a
+pop
+pop
+pop
+
+
+2.
+
+<html>
+	<a>
+		<div>
+			</a>
+		</div>
+</html>
+
+Stack:
+html
+a
+div
+
+verwerfen a
+pop
+out: a
+pop
+pop
+
+
+3.
+<html>
+		<div>
+			<a>
+		</div>
+	</a>
+</html>
+
+html
+div
+a
+
+out: a
+pop
+pop
+pop
+
+dictionaries .. tag name speichern (maskieren von alten sachen?)
+
+
+4.
+<html>
+	<div>
+		<a>
+	</div>
+	<span>
+		<table>
+			<tr>
+				<td>
+			</tr>
+				</td>
+				<td>
+			</tr>
+		</span>
+	</table>
+</html>
+
+
+html
+div
+a
+out /a
+pop
+pop
+span
+table
+tr
+td
+out /td
+pop
+pop
+verwerfen
+td
+out /td
+pop
+verwerfen (tr)
+verwerfen (span)
+
+
+
+Fälle:
+1. schließendes Tag wurde geöffnet
+	alle offenen Tags schließen, und danach betrachtetes Tag schließen
+2. öffnendes Tag ist nicht vorhanden
+	schließendes Tag verwerfen
+3. schließende tags am ende nicht vorhanden
+4. Normal: schließendes Tag hat öffnendes Tag am Top of Stack
+
+Nutzen:
+Stack allgemein
+Dictionairy Suchen
+
+
+1 2 
+
+
+3 dict
+/x exch def
